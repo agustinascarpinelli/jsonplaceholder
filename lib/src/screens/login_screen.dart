@@ -1,44 +1,47 @@
-import 'dart:convert';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:jsonplaceholder/src/providers/auth_provider.dart';
-import 'package:jsonplaceholder/src/ui/form_ui.dart';
 import 'package:provider/provider.dart';
-
 import '../providers/providers.dart';
 import '../widgets/widgets.dart';
+import 'package:jsonplaceholder/src/bloc/blocs.dart';
+import 'package:jsonplaceholder/src/ui/form_ui.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+     
       body: Center(
-        child: Container(
-          width: 500,
-          height: 500,
-          decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              border: Border.all(color: Colors.deepPurple),
-              borderRadius: BorderRadius.circular(20)),
-          margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            // ignore: prefer_const_literals_to_create_immutables
-            children: [
-              const Text('LOGIN',
-                  style: TextStyle(
-                      color: Colors.deepPurple,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(
-                height: 30,
-              ),
-              const _Form()
-            ],
+        child: SingleChildScrollView(
+          child:
+           Container(
+            width:500,
+            height: 500,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                border: Border.all(color: Colors.deepPurple),
+                borderRadius: BorderRadius.circular(20)),
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              // ignore: prefer_const_literals_to_create_immutables
+              children: [
+                Text('LOGIN',
+                    style: TextStyle(
+                        color: Colors.deepPurple,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold)),
+                SizedBox(
+                  height: 30,
+                ),
+                _Form()
+              ],
+            ),
           ),
         ),
       ),
@@ -65,9 +68,11 @@ class _FormState extends State<_Form> {
     passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-     final loginForm = Provider.of<FormProvider>(context);
+    final loginForm = Provider.of<FormProvider>(context);
+    final login = BlocProvider.of<AuthBloc>(context);
     return Form(
         child: Column(
       children: [
@@ -111,25 +116,35 @@ class _FormState extends State<_Form> {
             elevation: 0,
             color: Colors.deepPurple,
             onPressed: loginForm.isLoading
-                  ? null
-                  :
-                  ()async{
-                      FocusScope.of(context).unfocus();
-                  //    if (!loginForm.isValidForm()) {
-                   //   Notifications.showSnackBar('Not valid email or password');
-                  // }
-              final i= usernameController.text.indexOf('@');
-              final email=usernameController.text.substring(0,i);
-              Notifications.showSnackBar('Hello again $email');
-              Navigator.pushReplacementNamed(context, 'home');
-              loginForm.isLoading = false;
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+                    if (usernameController.text.isEmpty ||
+                        passwordController.text.isEmpty) {
+                      Notifications.showSnackBar('You should enter an user');
+                    } else {
+                      login.add(Login(
+                          usernameController.text, passwordController.text));
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        final state = context.read<AuthBloc>().state;
+                        if (!state.isAuth) {
+                          Notifications.showSnackBar(
+                              'Not valid email or password');
+                        } else {
+                          Navigator.pushReplacementNamed(context, 'home');
+                          final i = usernameController.text.indexOf('@');
+                          final name = usernameController.text.substring(0, i);
+                          Notifications.showSnackBar('Hello again $name');
+                        }
+                      });
+                      loginForm.isLoading = false;
+                    }
                   },
-            child: Text(!loginForm.isLoading ?
-              'Log in' :'Loading',
+            child: Text(
+              !loginForm.isLoading ? 'Log in' : 'Loading',
               style: const TextStyle(color: Colors.white),
-            )
-                
-            )
+            ))
       ],
     ));
   }

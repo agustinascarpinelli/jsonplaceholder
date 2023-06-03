@@ -4,7 +4,7 @@ class FormDecoration {
   static InputDecoration loginInput(
       {required String hintText,
       required String labelText,
-       IconData ?prefixIcon}) {
+      IconData? prefixIcon}) {
     return InputDecoration(
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.deepPurple),
@@ -14,10 +14,8 @@ class FormDecoration {
         ),
         hintText: hintText,
         labelText: labelText,
-       prefixIcon: prefixIcon != null 
-                 ? Icon( prefixIcon, color: Colors.deepPurple )
-                 : null
-    );
-        
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, color: Colors.deepPurple)
+            : null);
   }
 }

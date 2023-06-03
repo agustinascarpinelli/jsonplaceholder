@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:jsonplaceholder/src/providers/api_provider.dart';
-import 'package:jsonplaceholder/src/screens/screens.dart';
-import 'package:provider/provider.dart';
-import 'package:jsonplaceholder/src/widgets/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/api/api_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:timer_builder/timer_builder.dart';
+import 'package:jsonplaceholder/src/bloc/blocs.dart';
+import 'package:jsonplaceholder/src/screens/screens.dart';
+import 'package:jsonplaceholder/src/widgets/widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -14,31 +14,46 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-   late ApiBloc _apiBloc;
+  late ApiBloc _apiBloc;
+  late ServicesBloc _servicesBloc;
 
   @override
   void initState() {
     super.initState();
     _apiBloc = BlocProvider.of<ApiBloc>(context);
-    _apiBloc.add(OnIsConnected()); 
+    _servicesBloc = BlocProvider.of<ServicesBloc>(context);
+
+    _apiBloc.add(OnIsConnected());
+    _servicesBloc.add(GetUsers(_apiBloc.state.isConnected));
+    _servicesBloc.add(GetPosts(_apiBloc.state.isConnected));
   }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => _NavigationModel(),
       child: Scaffold(
-        body: BlocListener<ApiBloc, ApiState>(
-          listener: (context, stateApi) {
-          if (!stateApi.isConnected ) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Notifications.showSnackBar('There is no internet connection');
-            });
-          }
-        }, child:
-          
-          _Pages()
+        body: TimerBuilder.periodic(
+          const Duration(
+              seconds:
+                  30), // Intervalo de tiempo para comprobar la conexión (5 segundos en este ejemplo)
+          builder: (context) {
+            _apiBloc.add(
+                OnIsConnected()); // Disparar el evento cada vez que el temporizador se active
+            return BlocListener<ApiBloc, ApiState>(
+              listener: (context, stateApi) {
+                if (!stateApi.isConnected) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Notifications.showSnackBar(
+                        'There is no internet connection');
+                  });
+                }
+              },
+              child: const _Pages(),
+            );
+          },
         ),
-        bottomNavigationBar: _Navigation(),
+        bottomNavigationBar: const _Navigation(),
       ),
     );
   }

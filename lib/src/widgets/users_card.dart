@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jsonplaceholder/src/models/users_model.dart';
+import 'package:jsonplaceholder/src/models/models.dart';
 
 class UsersCard extends StatelessWidget {
   final UsersResponse user;
@@ -13,92 +13,81 @@ class UsersCard extends StatelessWidget {
         margin: const EdgeInsets.all(20),
         width: 200,
         height: 210,
-        padding:const EdgeInsets.only(left:20,top: 20,bottom: 20 ),
-        decoration: _UsersCardDecoration(),
+        padding: const EdgeInsets.only(left: 20, top: 20, bottom: 20),
+        decoration: usersCardDecoration(),
         child: Column(
-
           crossAxisAlignment: CrossAxisAlignment.start,
-      
           children: [
             RichText(
-              text: TextSpan(
-                text: 'Name :',
-                style: propertiesStyle(),
-                children: [
+                text: TextSpan(
+                    text: 'Name :',
+                    style: propertiesStyle(),
+                    children: [
                   TextSpan(
-                    text:' ${user.name}',
-                     style:propertiesStyles2(),
+                    text: ' ${user.name}',
+                    style: propertiesStyles2(),
                   )
-                ]
-              )),
-                   RichText(
-              text: TextSpan(
-                text: 'Username :',
-                style: propertiesStyle(),
-                children: [
+                ])),
+            RichText(
+                text: TextSpan(
+                    text: 'Username :',
+                    style: propertiesStyle(),
+                    children: [
                   TextSpan(
-                    text:' ${user.username}',
-                     style:propertiesStyles2(),
+                    text: ' ${user.username}',
+                    style: propertiesStyles2(),
                   )
-                ]
-              )),
-                   RichText(
-              text: TextSpan(
-                text: 'Email :',
-                style: propertiesStyle(),
-                children: [
+                ])),
+            RichText(
+                text: TextSpan(
+                    text: 'Email :',
+                    style: propertiesStyle(),
+                    children: [
                   TextSpan(
-                    text:' ${user.email}',
-                     style:propertiesStyles2(),
+                    text: ' ${user.email}',
+                    style: propertiesStyles2(),
                   )
-                ]
-              )),
-                   RichText(
-              text: TextSpan(
-                text: 'Address :',
-                style: propertiesStyle(),
-                children: [
+                ])),
+            RichText(
+                text: TextSpan(
+                    text: 'Address :',
+                    style: propertiesStyle(),
+                    children: [
                   TextSpan(
-                    text:' ${user.address.street}',
-                     style:propertiesStyles2(),
+                    text: ' ${user.address.street}',
+                    style: propertiesStyles2(),
                   )
-                ]
-              )),
-                   RichText(
-              text: TextSpan(
-                text: 'Phone :',
-                style: propertiesStyle(),
-                children: [
+                ])),
+            RichText(
+                text: TextSpan(
+                    text: 'Phone :',
+                    style: propertiesStyle(),
+                    children: [
                   TextSpan(
-                    text:' ${user.phone}',
-                     style:propertiesStyles2(),
+                    text: ' ${user.phone}',
+                    style: propertiesStyles2(),
                   )
-                ]
-              )),
-                   RichText(
-              text: TextSpan(
-                text: 'Website :',
-                style: propertiesStyle(),
-                children: [
+                ])),
+            RichText(
+                text: TextSpan(
+                    text: 'Website :',
+                    style: propertiesStyle(),
+                    children: [
                   TextSpan(
-                    text:' ${user.website}',
-                     style:propertiesStyles2(),
+                    text: ' ${user.website}',
+                    style: propertiesStyles2(),
                   )
-                ]
-              )),
-                   RichText(
-              text: TextSpan(
-                text: 'Company :',
-                style: propertiesStyle(),
-                children: [
+                ])),
+            RichText(
+                text: TextSpan(
+                    text: 'Company :',
+                    style: propertiesStyle(),
+                    children: [
                   TextSpan(
-                    text:' ${user.company.name}',
-                     style:propertiesStyles2(),
+                    text: ' ${user.company.name}',
+                    style: propertiesStyles2(),
                   )
-                ]
-              )),
-           
-     
+                ])),
           ],
         ),
       ),
@@ -106,38 +95,23 @@ class UsersCard extends StatelessWidget {
   }
 
   TextStyle propertiesStyles2() => const TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.normal,
-    
-    color:Colors.black
-    
-
-  );
+      fontSize: 15, fontWeight: FontWeight.normal, color: Colors.black);
 
   TextStyle propertiesStyle() => const TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.bold,
-    color: Colors.deepPurple
+      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple);
 
-  );
-
-  BoxDecoration _UsersCardDecoration() => BoxDecoration(
-    color:Colors.white,
-    shape: BoxShape.rectangle,
-    boxShadow: [
-      BoxShadow(
-        color: Colors.deepPurple.shade50,
-        blurRadius: 10.0,
-        offset: Offset(0.0,10.0),
-      )
-    ],
-    borderRadius: BorderRadius.circular(20),
-    gradient: LinearGradient(
-      begin: Alignment.topCenter,
-    
-      colors:[
-        Colors.deepPurple.shade300,
-        Colors.deepPurple.shade100
-      ] )
-  );
+  BoxDecoration usersCardDecoration() => BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.rectangle,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.deepPurple.shade50,
+          blurRadius: 10.0,
+          offset: const Offset(0.0, 10.0),
+        )
+      ],
+      borderRadius: BorderRadius.circular(20),
+      gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          colors: [Colors.deepPurple.shade300, Colors.deepPurple.shade100]));
 }

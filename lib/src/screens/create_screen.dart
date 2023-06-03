@@ -1,33 +1,40 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:jsonplaceholder/src/providers/providers.dart';
 import 'package:provider/provider.dart';
-import '../providers/api_provider.dart';
-import '../providers/providers.dart';
+import '../bloc/blocs.dart';
 import '../ui/form_ui.dart';
 import '../widgets/widgets.dart';
+import 'package:jsonplaceholder/src/providers/providers.dart';
 
 class CreatePostScreen extends StatelessWidget {
   const CreatePostScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+     final screenWidth = MediaQuery.of(context).size.width;
+        final containerWidth = screenWidth > 800 ? 800 : screenWidth;
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Create a new post'),
       ),
       body: Center(
-          child: Container(
-        width: 800,
-        height: 800,
-        margin: const EdgeInsets.all(40),
-        // ignore: prefer_const_literals_to_create_immutables
-        child: Column(children: [
-          const SizedBox(
-            height: 30,
-          ),
-          const _Form()
-        ]),
-      )),
+          child: SingleChildScrollView(
+            child: Container(
+                  width: containerWidth.toDouble(),
+                  height: 800,
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.all(40),
+                  // ignore: prefer_const_literals_to_create_immutables
+                  child: const Column(children: [
+            SizedBox(
+              height: 30,
+            ),
+            _Form()
+                  ]),
+                ),
+          )),
     );
   }
 }
@@ -54,8 +61,10 @@ class _FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final apiBloc = BlocProvider.of<ApiBloc>(context);
+    final serviceBloc = BlocProvider.of<ServicesBloc>(context);
     final postForm = Provider.of<FormProvider>(context);
-   
+
     return Form(
         key: postForm.postKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -101,29 +110,33 @@ class _FormState extends State<_Form> {
               onPressed: postForm.isLoading
                   ? null
                   : () async {
-           
-                      FocusScope.of(context).unfocus();
-                      final service =
-                          Provider.of<ApiProvider>(context, listen: false);
+                      if (apiBloc.state.isConnected) {
+                        FocusScope.of(context).unfocus();
 
-                      if (!postForm.isValidForm()) return;
-                      postForm.isLoading = true;
-                      final String title = titleController.text;
-                      final String body = bodyController.text;
+                        if (!postForm.isValidForm()) return;
+                        postForm.isLoading = true;
+                        final String title = titleController.text;
+                        final String body = bodyController.text;
 
-                      await service.createPost(title, body);
-                      postForm.isLoading = false;
-                      if (service.isCreated) {
-                        // ignore: use_build_context_synchronously
-                        Notifications.showSnackBar('Post created');
-                        service.isCreated = false;
-                        
-                        Navigator.pop(context);
-
+                       serviceBloc.add(CreatePost(title, body));
+                        postForm.isLoading = false;
+                        if (serviceBloc.state.isCreated) {
+                          // ignore: use_build_context_synchronously
+                          Notifications.showSnackBar('Post created');
+                          serviceBloc.add(OnPostCreated());
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context);
+                        } else if (serviceBloc.state.errorPost != null) {
+                          Notifications.showSnackBar(
+                              serviceBloc.state.errorPost!);
+                        } else {
+                          Notifications.showSnackBar(
+                              'Error posting, try again later');
+                          postForm.isLoading = false;
+                        }
                       } else {
                         Notifications.showSnackBar(
-                            'Error posting, try again later');
-                        postForm.isLoading = false;
+                            'Turn on the conexion to post');
                       }
                     },
               child: Container(
