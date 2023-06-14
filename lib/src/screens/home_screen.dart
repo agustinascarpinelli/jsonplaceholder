@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +19,25 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late ApiBloc _apiBloc;
   late ServicesBloc _servicesBloc;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
+@override
+  void didChangeDependencies() {
+  _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  
+    super.didChangeDependencies();
+  }
+
+ Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+    _apiBloc.add(OnIsConnected());
+  } 
+
 
   @override
   void initState() {
@@ -33,14 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return ChangeNotifierProvider(
       create: (_) => _NavigationModel(),
       child: Scaffold(
-        body: TimerBuilder.periodic(
-          const Duration(
-              seconds:
-                  30), // Intervalo de tiempo para comprobar la conexión (5 segundos en este ejemplo)
-          builder: (context) {
-            _apiBloc.add(
-                OnIsConnected()); // Disparar el evento cada vez que el temporizador se active
-            return BlocListener<ApiBloc, ApiState>(
+        body: BlocListener<ApiBloc, ApiState>(
               listener: (context, stateApi) {
                 if (!stateApi.isConnected) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,12 +65,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               },
               child: const _Pages(),
-            );
-          },
-        ),
+            ),
+          
+        
         bottomNavigationBar: const _Navigation(),
-      ),
-    );
+      
+    ));
   }
 }
 
